@@ -8,5 +8,5 @@ export default defineConfig({
   dts: true,
   outDir: "dist",
   format: ["esm", "cjs"],
-  legacyOutput: true,
+  onSuccess: "cp -a src/wsdl dist"
 });

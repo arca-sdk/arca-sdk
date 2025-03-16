@@ -2,16 +2,16 @@
   "name": "@arca-sdk/javascript",
   "type": "module",
   "license": "MIT",
-  "version": "0.0.3",
-  "main": "./dist/index.js",
+  "version": "0.0.4",
+  "main": "./dist/index.cjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": {
-        "default": "./dist/esm/index.js"
+        "default": "./dist/index.js"
       },
       "require": {
-        "default": "./dist/index.js"
+        "default": "./dist/index.cjs"
       }
     }
   },

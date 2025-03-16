@@ -70,7 +70,7 @@ export class Arca {
   }
 
   async saveAccessTicketToLocalFilesystem(ticket: AccessTicket): Promise<void> {
-    fs.mkdir(resolve(import.meta.dirname, "credentials"), { recursive: true });
+    await fs.mkdir(resolve(import.meta.dirname, "credentials"), { recursive: true });
 
     const filePath = `./credentials/TA-${this.cuit}-wsfe.json`;
     await fs.writeFile(filePath, JSON.stringify(ticket), "utf8");

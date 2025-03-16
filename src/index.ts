@@ -27,7 +27,7 @@ export class Arca {
 
   async crearComprobante() {
     const client = await createClientAsync(
-      "./wsdl/wsfev1homo.wsdl",
+      resolve(import.meta.dirname, "wsdl/wsfev1homo.wsdl"),
       {
         disableCache: true,
         forceSoap12Headers: true,
@@ -69,9 +69,7 @@ export class Arca {
     return accessTicket;
   }
 
-  async saveAccessTicketToLocalFilesystem(
-    ticket: AccessTicket,
-  ): Promise<void> {
+  async saveAccessTicketToLocalFilesystem(ticket: AccessTicket): Promise<void> {
     fs.mkdir(resolve(import.meta.dirname, "credentials"), { recursive: true });
 
     const filePath = `./credentials/TA-${this.cuit}-wsfe.json`;
@@ -85,7 +83,7 @@ export class Arca {
 
     // Request TR
     const client = await createClientAsync(
-      "./wsdl/wsaahomo.wsdl",
+      resolve(import.meta.dirname, "wsdl/wsaahomo.wsdl"),
       {
         disableCache: true,
         forceSoap12Headers: true,

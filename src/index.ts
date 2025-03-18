@@ -11,28 +11,37 @@ export class Arca {
   private readonly certificate: string;
   private readonly privateKey: string;
   private readonly cuit: number;
+  private readonly productionMode: boolean;
   constructor({
     certificate,
     privateKey,
     cuit,
+    productionMode = false,
   }: {
     certificate: string;
     privateKey: string;
     cuit: number;
+    productionMode?: boolean;
   }) {
     this.certificate = certificate;
     this.privateKey = privateKey;
     this.cuit = cuit;
+    this.productionMode = productionMode;
   }
 
-  async crearComprobante() {
+  async obtenerTiposDeComprobante() {
     const client = await createClientAsync(
-      resolve(import.meta.dirname, "wsdl/wsfev1homo.wsdl"),
+      resolve(
+        import.meta.dirname,
+        this.productionMode ? "wsdl/wsfev1.wsdl" : "wsdl/wsfev1homo.wsdl",
+      ),
       {
         disableCache: true,
         forceSoap12Headers: true,
       },
-      "https://wswhomo.afip.gov.ar/wsfev1/service.asmx",
+      this.productionMode
+        ? "https://servicios1.afip.gov.ar/wsfev1/service.asmx"
+        : "https://wswhomo.afip.gov.ar/wsfev1/service.asmx",
     );
     const accessTicket = await this.login();
     const [output] = await client.FEParamGetTiposCbteAsync({
@@ -61,7 +70,7 @@ export class Arca {
     return new AccessTicket(JSON.parse(fileData));
   }
 
-  async login() {
+  private async login() {
     let accessTicket = await this.getAccessTicketFromLocalFilesystem();
 
     if (!accessTicket || accessTicket.isExpired()) {
@@ -72,7 +81,9 @@ export class Arca {
     return accessTicket;
   }
 
-  async saveAccessTicketToLocalFilesystem(ticket: AccessTicket): Promise<void> {
+  private async saveAccessTicketToLocalFilesystem(
+    ticket: AccessTicket,
+  ): Promise<void> {
     await fs.mkdir(resolve(import.meta.dirname, "credentials"), {
       recursive: true,
     });
@@ -91,12 +102,17 @@ export class Arca {
 
     // Request TR
     const client = await createClientAsync(
-      resolve(import.meta.dirname, "wsdl/wsaahomo.wsdl"),
+      resolve(
+        import.meta.dirname,
+        this.productionMode ? "wsdl/wsaa.wsdl" : "wsdl/wsaahomo.wsdl",
+      ),
       {
         disableCache: true,
         forceSoap12Headers: true,
       },
-      "https://wsaahomo.afip.gov.ar/ws/services/LoginCms",
+      this.productionMode
+        ? "https://wsaa.afip.gov.ar/ws/services/LoginCms"
+        : "https://wsaahomo.afip.gov.ar/ws/services/LoginCms",
     );
     const [loginCmsResult] = await client.loginCmsAsync({ in0: signedTRA });
     const loginReturn = await parseStringPromise(

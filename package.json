@@ -1,0 +1,52 @@
+{
+  "name": "arca-sdk",
+  "version": "0.1.0",
+  "description": "Type-safe TypeScript SDK for ARCA/AFIP web services.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "arca",
+    "afip",
+    "wsfe",
+    "facturacion-electronica",
+    "soap",
+    "argentina",
+    "typescript"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "wsdl",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./wsdl/wsfev1.homo.wsdl": "./wsdl/wsfev1.homo.wsdl",
+    "./wsdl/wsfev1.prod.wsdl": "./wsdl/wsfev1.prod.wsdl",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "soap": "^1.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.7"
+  }
+}

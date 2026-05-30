@@ -4,6 +4,9 @@
     "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "arca-sdk": ["./src/index.ts"]
+    },
     "strict": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,

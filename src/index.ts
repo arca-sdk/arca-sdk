@@ -8,7 +8,13 @@ export { normalizeCuit } from "./cuit";
 export type { ArcaCuit } from "./cuit";
 
 export { ARCA_ENVIRONMENTS, resolveArcaEnvironment } from "./environments";
-export type { ArcaEnvironment, ArcaEnvironmentConfig, ArcaWsfeEnvironmentConfig } from "./environments";
+export type {
+  ArcaEnvironment,
+  ArcaEnvironmentConfig,
+  ArcaServiceEnvironmentConfig,
+  ArcaWsaaEnvironmentConfig,
+  ArcaWsfeEnvironmentConfig,
+} from "./environments";
 
 export {
   ArcaAuthError,
@@ -19,6 +25,32 @@ export {
   ArcaUnexpectedResponseError,
 } from "./errors";
 export type { ArcaErrorOptions } from "./errors";
+
+export {
+  WsaaClient,
+  createFileWsaaTicketCache,
+  createWsaaAuthProvider,
+  createWsaaLoginTicketRequestXml,
+  createWsaaTicketCacheKey,
+  parseWsaaLoginTicketResponse,
+  signCms,
+} from "./wsaa";
+export type {
+  LoginCmsSoapRequest,
+  LoginCmsSoapResponseEnvelope,
+  SignCmsOptions,
+  WsaaAuthProviderOptions,
+  WsaaClientOptions,
+  WsaaClientOverrides,
+  WsaaFileTicketCacheOptions,
+  WsaaLoginTicketHeader,
+  WsaaLoginTicketRequestOptions,
+  WsaaLoginTicketResponse,
+  WsaaPemInput,
+  WsaaServiceName,
+  WsaaTicketCache,
+  WsaaTicketCacheKey,
+} from "./wsaa";
 
 export { WsfeClient } from "./wsfe";
 export type { WsfeClientOptions } from "./wsfe";

@@ -2,7 +2,7 @@
 
 Type-safe TypeScript SDK for ARCA/AFIP web services.
 
-This first version focuses on `wsfev1` and uses injectable `token`/`sign` authentication. WSAA certificate login can be added on top of the current auth provider interface later.
+This version focuses on `wsfev1` and supports both injectable `token`/`sign` authentication and WSAA certificate authentication.
 
 ## Runtime
 
@@ -20,14 +20,20 @@ npm install arca-sdk
 ## Basic usage
 
 ```ts
-import { createArcaClient } from "arca-sdk";
+import { readFileSync } from "node:fs";
+import { createArcaClient, createFileWsaaTicketCache, createWsaaAuthProvider } from "arca-sdk";
+
+const environment = "homologacion";
 
 const client = createArcaClient({
-  environment: "homologacion",
+  environment,
   cuit: 20123456786,
-  auth: async () => ({
-    token: process.env.ARCA_TOKEN!,
-    sign: process.env.ARCA_SIGN!,
+  auth: createWsaaAuthProvider({
+    environment,
+    service: "wsfe",
+    certificate: readFileSync("./certs/certificate.crt", "utf8"),
+    privateKey: readFileSync("./certs/private.key", "utf8"),
+    cache: createFileWsaaTicketCache("./.arca-cache"),
   }),
 });
 
@@ -42,15 +48,26 @@ const lastVoucher = await client.wsfe.FECompUltimoAutorizado({
 ## Requesting CAE
 
 ```ts
-import { createArcaClient, type FECAESolicitarRequest } from "arca-sdk";
+import { readFileSync } from "node:fs";
+import {
+  createArcaClient,
+  createFileWsaaTicketCache,
+  createWsaaAuthProvider,
+  type FECAESolicitarRequest,
+} from "arca-sdk";
+
+const environment = "homologacion";
 
 const client = createArcaClient({
-  environment: "homologacion",
+  environment,
   cuit: "20-12345678-6",
-  auth: {
-    token: "...",
-    sign: "...",
-  },
+  auth: createWsaaAuthProvider({
+    environment,
+    service: "wsfe",
+    certificate: readFileSync("./certs/certificate.crt", "utf8"),
+    privateKey: readFileSync("./certs/private.key", "utf8"),
+    cache: createFileWsaaTicketCache("./.arca-cache"),
+  }),
 });
 
 const request: FECAESolicitarRequest = {
@@ -99,13 +116,17 @@ const response = await client.wsfe.FECAESolicitar(request);
 
 The package includes local WSDL snapshots:
 
+- `wsdl/wsaa.homo.wsdl`
+- `wsdl/wsaa.prod.wsdl`
 - `wsdl/wsfev1.homo.wsdl`
 - `wsdl/wsfev1.prod.wsdl`
 
-By default, the SDK uses those local WSDL files and explicitly points the SOAP client to the selected remote endpoint:
+By default, the SDK uses those local WSDL files and explicitly points the SOAP clients to the selected remote endpoints:
 
-- homologación: `https://wswhomo.afip.gov.ar/wsfev1/service.asmx`
-- production: `https://servicios1.afip.gov.ar/wsfev1/service.asmx`
+- WSAA homologación: `https://wsaahomo.afip.gov.ar/ws/services/LoginCms`
+- WSAA production: `https://wsaa.afip.gov.ar/ws/services/LoginCms`
+- WSFE homologación: `https://wswhomo.afip.gov.ar/wsfev1/service.asmx`
+- WSFE production: `https://servicios1.afip.gov.ar/wsfev1/service.asmx`
 
 You can override the WSDL or endpoint if needed:
 
@@ -157,7 +178,34 @@ Convenience aliases are also available for the most common calls:
 
 ## Authentication model
 
-This version expects a WSAA ticket provider and injects `Auth` automatically into authenticated WSFE calls.
+The SDK injects `Auth` automatically into authenticated WSFE calls.
+
+### WSAA certificate authentication
+
+```ts
+import { readFileSync } from "node:fs";
+import { createFileWsaaTicketCache, createWsaaAuthProvider } from "arca-sdk";
+
+const auth = createWsaaAuthProvider({
+  environment: "homologacion",
+  service: "wsfe",
+  certificate: readFileSync("./certs/certificate.crt", "utf8"),
+  privateKey: readFileSync("./certs/private.key", "utf8"),
+  cache: createFileWsaaTicketCache("./.arca-cache"),
+});
+
+const ticket = await auth();
+
+console.log(ticket.token);
+console.log(ticket.sign);
+console.log(ticket.expirationTime);
+```
+
+The provider always keeps an in-memory cache. If you pass `cache: createFileWsaaTicketCache("./.arca-cache")`, it also persists the TA across script executions, which avoids calling `loginCms` again while ARCA still has a valid TA for the certificate/service.
+
+If your private key is encrypted, pass `privateKeyPassphrase`.
+
+### External token/sign provider
 
 ```ts
 const client = createArcaClient({

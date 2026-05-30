@@ -3,6 +3,8 @@ dist/
 coverage/
 .DS_Store
 *.log
+.arca-cache/
+certs/
 .env
 .env.*
 !.env.example

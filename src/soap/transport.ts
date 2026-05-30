@@ -1,6 +1,5 @@
 import soap from "soap";
 import { ArcaSoapMethodNotFoundError, ArcaUnexpectedResponseError } from "../errors";
-import type { WsfeOperationName } from "../wsfe/types.generated";
 import type { Client, IOptions } from "soap";
 
 export type SoapOptions = IOptions;
@@ -26,7 +25,7 @@ export async function createNodeSoapClient(input: SoapClientFactoryInput): Promi
 
 export type SoapAsyncMethod = (request: unknown) => Promise<unknown>;
 
-export function getSoapAsyncMethod(client: SoapClientLike, operation: WsfeOperationName): SoapAsyncMethod {
+export function getSoapAsyncMethod(client: SoapClientLike, operation: string): SoapAsyncMethod {
   const methodName = `${operation}Async`;
   const method = client[methodName];
 
@@ -50,7 +49,7 @@ export function unwrapSoapAsyncResult<TEnvelope>(result: unknown): TEnvelope {
 export function unwrapSoapEnvelopeResult<TEnvelope extends object, TResult>(
   envelope: TEnvelope,
   resultKey: keyof TEnvelope & string,
-  operation: WsfeOperationName,
+  operation: string,
 ): TResult {
   const result = (envelope as Record<string, unknown>)[resultKey];
 

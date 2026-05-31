@@ -1,6 +1,6 @@
 {
-  "name": "arca-sdk",
-  "version": "0.1.0",
+  "name": "@arca-sdk/javascript",
+  "version": "1.0.0",
   "description": "Type-safe TypeScript SDK for ARCA/AFIP web services.",
   "type": "module",
   "license": "MIT",

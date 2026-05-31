@@ -21,88 +21,82 @@ npm install arca-sdk
 
 ```ts
 import { readFileSync } from "node:fs";
-import { createArcaClient, createFileWsaaTicketCache, createWsaaAuthProvider } from "arca-sdk";
-
-const environment = "homologacion";
-
-const client = createArcaClient({
-  environment,
-  cuit: 20123456786,
-  auth: createWsaaAuthProvider({
-    environment,
-    service: "wsfe",
-    certificate: readFileSync("./certs/certificate.crt", "utf8"),
-    privateKey: readFileSync("./certs/private.key", "utf8"),
-    cache: createFileWsaaTicketCache("./.arca-cache"),
-  }),
-});
-
-const status = await client.wsfe.FEDummy();
-
-const lastVoucher = await client.wsfe.FECompUltimoAutorizado({
-  PtoVta: 1,
-  CbteTipo: 6,
-});
-```
-
-## Requesting CAE
-
-```ts
-import { readFileSync } from "node:fs";
 import {
   createArcaClient,
   createFileWsaaTicketCache,
   createWsaaAuthProvider,
+  type ArcaEnvironment,
   type FECAESolicitarRequest,
 } from "arca-sdk";
 
-const environment = "homologacion";
+function todayYYYYMMDD(): string {
+  const date = new Date();
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}${month}${day}`;
+}
+
+const environment: ArcaEnvironment = "production";
+const cuit = 20405129540;
 
 const client = createArcaClient({
   environment,
-  cuit: "20-12345678-6",
+  cuit,
   auth: createWsaaAuthProvider({
     environment,
     service: "wsfe",
-    certificate: readFileSync("./certs/certificate.crt", "utf8"),
+    certificate: readFileSync("./certs/alesolidcode_18cdcf704b22805c.crt", "utf8"),
     privateKey: readFileSync("./certs/private.key", "utf8"),
     cache: createFileWsaaTicketCache("./.arca-cache"),
   }),
 });
+
+const pointOfSale = 3;
+const voucherType = 11; // 11 = Factura C
+
+const lastVoucher = await client.wsfe.FECompUltimoAutorizado({
+  PtoVta: pointOfSale,
+  CbteTipo: voucherType,
+});
+
+const nextVoucherNumber = lastVoucher.CbteNro + 1;
+
+const netAmount = 100;
+const vatAmount = 21;
+const totalAmount = netAmount + vatAmount;
 
 const request: FECAESolicitarRequest = {
   FeCAEReq: {
     FeCabReq: {
       CantReg: 1,
-      PtoVta: 1,
-      CbteTipo: 6,
+      PtoVta: pointOfSale,
+      CbteTipo: voucherType,
     },
     FeDetReq: {
       FECAEDetRequest: [
         {
-          Concepto: 1,
-          DocTipo: 80,
-          DocNro: 20123456786,
-          CbteDesde: 1,
-          CbteHasta: 1,
-          CbteFch: "20260529",
-          ImpTotal: 121,
+          Concepto: 1, // Productos
+          DocTipo: 99, // Consumidor Final
+          DocNro: 0,
+
+          CbteDesde: nextVoucherNumber,
+          CbteHasta: nextVoucherNumber,
+          CbteFch: todayYYYYMMDD(),
+
+          ImpTotal: 100,
           ImpTotConc: 0,
           ImpNeto: 100,
           ImpOpEx: 0,
           ImpTrib: 0,
-          ImpIVA: 21,
+          ImpIVA: 0,
+
           MonId: "PES",
           MonCotiz: 1,
-          Iva: {
-            AlicIva: [
-              {
-                Id: 5,
-                BaseImp: 100,
-                Importe: 21,
-              },
-            ],
-          },
+
+          CondicionIVAReceptorId: 5, // Consumidor Final
         },
       ],
     },
@@ -110,6 +104,27 @@ const request: FECAESolicitarRequest = {
 };
 
 const response = await client.wsfe.FECAESolicitar(request);
+
+if (response.Errors?.Err?.length) {
+  console.error("ARCA rejected the invoice:");
+  console.error(response.Errors.Err);
+  process.exit(1);
+}
+
+const detail = response.FeDetResp?.FECAEDetResponse?.[0];
+
+console.log("Invoice created:");
+console.log({
+  pointOfSale,
+  voucherType,
+  voucherNumber: nextVoucherNumber,
+  result: detail?.Resultado,
+  cae: detail?.CAE,
+  caeExpirationDate: detail?.CAEFchVto,
+  observations: detail?.Observaciones?.Obs,
+  detail: detail
+});
+
 ```
 
 ## Environments and WSDL files

@@ -44,8 +44,8 @@
     "node": ">=24"
   },
   "dependencies": {
-    "node-forge": "^1.4.0",
-    "soap": "^1.9.3"
+    "@xmldom/xmldom": "^0.9.10",
+    "node-forge": "^1.4.0"
   },
   "devDependencies": {
     "@types/node": "^24.12.4",

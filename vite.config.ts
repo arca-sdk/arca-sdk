@@ -3,7 +3,6 @@ import { defineConfig } from "vitest/config";
 
 const external = [
   "node-forge",
-  "soap",
   ...builtinModules,
   ...builtinModules.map((moduleName) => `node:${moduleName}`),
 ];

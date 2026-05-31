@@ -9,7 +9,7 @@ This version focuses on `wsfev1` and supports both injectable `token`/`sign` aut
 - Node.js 20+
 - ESM-only package
 - Built with Vite 8 in library mode
-- SOAP transport powered by [`soap`](https://www.npmjs.com/package/soap) (`node-soap`)
+- SOAP transport implemented locally with native `fetch`
 
 ## Install
 

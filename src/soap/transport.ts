@@ -1,8 +1,8 @@
-import soap from "soap";
 import { ArcaSoapMethodNotFoundError, ArcaUnexpectedResponseError } from "../errors";
-import type { Client, IOptions } from "soap";
+import { createClientAsync } from "./client";
+import type { SoapClient, SoapOptions } from "./client";
 
-export type SoapOptions = IOptions;
+export type { SoapOptions } from "./client";
 
 export interface SoapClientLike {
   setEndpoint?: (endpoint: string) => void;
@@ -18,8 +18,8 @@ export interface SoapClientFactoryInput {
 export type SoapClientFactory = (input: SoapClientFactoryInput) => Promise<SoapClientLike>;
 
 export async function createNodeSoapClient(input: SoapClientFactoryInput): Promise<SoapClientLike> {
-  const client = (await soap.createClientAsync(input.wsdl, input.options ?? {})) as Client & SoapClientLike;
-  client.setEndpoint?.(input.endpoint);
+  const client = (await createClientAsync(input.wsdl, input.options ?? {}, input.endpoint)) as SoapClient & SoapClientLike;
+  client.setEndpoint(input.endpoint);
   return client;
 }
 

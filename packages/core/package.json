@@ -1,0 +1,57 @@
+{
+  "name": "@arca-sdk/javascript",
+  "version": "1.0.0",
+  "description": "Type-safe TypeScript SDK for ARCA/AFIP web services.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "arca",
+    "afip",
+    "wsfe",
+    "facturacion-electronica",
+    "soap",
+    "argentina",
+    "typescript"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "wsdl",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./wsdl/wsaa.homo.wsdl": "./wsdl/wsaa.homo.wsdl",
+    "./wsdl/wsaa.prod.wsdl": "./wsdl/wsaa.prod.wsdl",
+    "./wsdl/wsfev1.homo.wsdl": "./wsdl/wsfev1.homo.wsdl",
+    "./wsdl/wsfev1.prod.wsdl": "./wsdl/wsfev1.prod.wsdl",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "clean": "node -e \"const fs=require('node:fs'); fs.rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && vite build && tsc -p tsconfig.build.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.10",
+    "node-forge": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.1",
+    "@types/node-forge": "^1.3.14",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  }
+}
